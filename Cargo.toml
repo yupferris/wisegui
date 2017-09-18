@@ -1,0 +1,8 @@
+[package]
+name = "wisegui"
+version = "0.1.0"
+authors = ["ferris <yupferris@gmail.com>"]
+
+[dependencies]
+image = "0.15.0"
+minifb = "0.10.1"
