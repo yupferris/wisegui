@@ -23,11 +23,11 @@ impl Palette for VirtualBoyPalette {
 }
 
 fn main() {
-    let mut window = Window::new("wisegui test", 512, 384, WindowOptions {
+    let mut window = Window::new("wisegui test", 1280, 720, WindowOptions {
         borderless: false,
         title: true,
         resize: false,//true, // Until we can query client area size on Window consistently, see https://github.com/emoon/rust_minifb/issues/42
-        scale: Scale::X2,
+        scale: Scale::X1,
     }).unwrap();
 
     let context = Context::new(Box::new(VirtualBoyPalette));
@@ -50,7 +50,7 @@ fn main() {
 
             painter.rect(4, 4, (width - 8) as _, (height - 8) as _, Color::Darkest, Color::Light);
 
-            let pattern_offset = (100, 100);
+            let pattern_offset = (420, 100);
             let pattern_width = 16;
             let pattern_height = 16;
             for y in 0..pattern_height {
@@ -64,7 +64,9 @@ fn main() {
 
             layout.text(Color::Light, "here's something <(-.-)> :D");
             layout.text(Color::Lightest, "Holy what, it works!!");
-            layout.button("here's a button that does nothing...");
+            for _ in 0..40 {
+                layout.button("here are some buttons that don't do anything...");
+            }
             layout.text(Color::Lightest, "stack stack stack...");
             if layout.button("PUSH ME YO") {
                 is_done = true;
