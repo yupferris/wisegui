@@ -65,6 +65,17 @@ pub trait Palette {
 pub struct Context {
     font: Font,
     palette: Box<Palette>,
+
+    mouse_pos: (i32, i32),
+
+    is_left_mouse_down: bool,
+    last_is_left_mouse_down: bool,
+
+    was_left_mouse_pressed: bool,
+    left_mouse_pressed_pos: (i32, i32),
+
+    was_left_mouse_released: bool,
+    left_mouse_released_pos: (i32, i32),
 }
 
 impl Context {
@@ -72,7 +83,36 @@ impl Context {
         Context {
             font: Font::new(),
             palette: palette,
+
+            mouse_pos: (0, 0),
+
+            is_left_mouse_down: false,
+            last_is_left_mouse_down: false,
+
+            was_left_mouse_pressed: false,
+            left_mouse_pressed_pos: (0, 0),
+
+            was_left_mouse_released: false,
+            left_mouse_released_pos: (0, 0),
         }
+    }
+
+    pub fn update(&mut self, mouse_pos: (i32, i32), is_left_mouse_down: bool) {
+        self.mouse_pos = mouse_pos;
+
+        self.was_left_mouse_pressed = is_left_mouse_down && !self.last_is_left_mouse_down;
+        if self.was_left_mouse_pressed {
+            self.left_mouse_pressed_pos = mouse_pos;
+        }
+
+        self.was_left_mouse_released = !is_left_mouse_down && self.last_is_left_mouse_down;
+        if self.was_left_mouse_released {
+            self.left_mouse_released_pos = mouse_pos;
+        }
+
+        self.last_is_left_mouse_down = self.is_left_mouse_down;
+
+        self.is_left_mouse_down = is_left_mouse_down;
     }
 }
 
@@ -81,20 +121,15 @@ pub struct Painter<'a> {
     buffer: &'a mut [u32],
     width: usize,
     height: usize,
-    // TODO: This is crap, but works for PoC :)
-    mouse_pos: (i32, i32),
-    is_left_mouse_down: bool,
 }
 
 impl<'a> Painter<'a> {
-    pub fn new(context: &'a Context, buffer: &'a mut [u32], width: usize, height: usize, mouse_pos: (i32, i32), is_left_mouse_down: bool) -> Painter<'a> {
+    pub fn new(context: &'a Context, buffer: &'a mut [u32], width: usize, height: usize) -> Painter<'a> {
         Painter {
             context: context,
             buffer: buffer,
             width: width,
             height: height,
-            mouse_pos: mouse_pos,
-            is_left_mouse_down: is_left_mouse_down,
         }
     }
 
@@ -266,21 +301,30 @@ impl<'a> VerticalStackLayout<'a> {
 
         let total_size = (font_metrics.0 + padding * 2, font_metrics.1 + padding * 2);
 
-        let is_hovered =
-            self.painter.mouse_pos.0 >= self.cursor.0 &&
-            self.painter.mouse_pos.0 < self.cursor.0 + total_size.0 &&
-            self.painter.mouse_pos.1 >= self.cursor.1 &&
-            self.painter.mouse_pos.1 < self.cursor.1 + total_size.1;
-        let is_pressed = is_hovered && self.painter.is_left_mouse_down;
+        fn is_in_bounds(pos: (i32, i32), size: (i32, i32), point: (i32, i32)) -> bool {
+            point.0 >= pos.0 &&
+            point.0 < pos.0 + size.0 &&
+            point.1 >= pos.1 &&
+            point.1 < pos.1 + size.1
+        }
 
-        let bg_color = if is_pressed { Color::Light } else { if is_hovered { Color::Dark } else { Color::Darkest } };
-        let text_color = if is_pressed { Color::Darkest } else { Color::Lightest };
+        let is_mouse_pos_in_bounds = is_in_bounds(self.cursor, total_size, self.painter.context.mouse_pos);
+        let is_left_pressed_pos_in_bounds = is_in_bounds(self.cursor, total_size, self.painter.context.left_mouse_pressed_pos);
+        let is_hovered = is_mouse_pos_in_bounds && !self.painter.context.is_left_mouse_down;
+        let is_down = is_mouse_pos_in_bounds && self.painter.context.is_left_mouse_down && is_left_pressed_pos_in_bounds;
+        let was_pressed =
+            self.painter.context.was_left_mouse_released &&
+            is_left_pressed_pos_in_bounds &&
+            is_in_bounds(self.cursor, total_size, self.painter.context.left_mouse_released_pos);
+
+        let bg_color = if is_down { Color::Light } else { if is_hovered { Color::Dark } else { Color::Darkest } };
+        let text_color = if is_down { Color::Darkest } else { Color::Lightest };
 
         self.painter.rect(self.cursor.0, self.cursor.1, total_size.0, total_size.1, bg_color, Color::Light);
         self.painter.text(self.cursor.0 + padding, self.cursor.1 + padding, text_color, string);
 
         self.cursor.1 += total_size.1;
 
-        is_pressed
+        was_pressed
     }
 }

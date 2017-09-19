@@ -9,6 +9,19 @@ use wisegui::*;
 use std::time::Duration;
 use std::thread;
 
+/*struct DefaultPalette;
+
+impl Palette for DefaultPalette {
+    fn color(&self, color: Color) -> u32 {
+        match color {
+            Color::Darkest => 0x000000,
+            Color::Dark => 0x555555,
+            Color::Light => 0xaaaaaa,
+            Color::Lightest => 0xffffff,
+        }
+    }
+}*/
+
 struct VirtualBoyPalette;
 
 impl Palette for VirtualBoyPalette {
@@ -30,21 +43,23 @@ fn main() {
         scale: Scale::X1,
     }).unwrap();
 
-    let context = Context::new(Box::new(VirtualBoyPalette));
+    let mut context = Context::new(Box::new(VirtualBoyPalette));
 
     let mut is_done = false;
 
     while window.is_open() && !is_done {
+        let mouse_pos = {
+            let p = window.get_mouse_pos(MouseMode::Clamp).unwrap_or((0.0, 0.0));
+            (p.0 as i32, p.1 as i32)
+        };
+        let is_left_mouse_down = window.get_mouse_down(MouseButton::Left);
+        context.update(mouse_pos, is_left_mouse_down);
+
         let (width, height) = window.get_size();
         let mut buffer: Vec<u32> = vec![0; width * height];
 
         {
-            let mouse_pos = {
-                let p = window.get_mouse_pos(MouseMode::Clamp).unwrap_or((0.0, 0.0));
-                (p.0 as i32, p.1 as i32)
-            };
-
-            let mut painter = Painter::new(&context, &mut buffer, width, height, mouse_pos, window.get_mouse_down(MouseButton::Left));
+            let mut painter = Painter::new(&context, &mut buffer, width, height);
 
             painter.clear(Color::Dark);
 
