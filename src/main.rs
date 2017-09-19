@@ -39,7 +39,7 @@ fn main() {
     let mut window = Window::new("wisegui test", 1280, 720, WindowOptions {
         borderless: false,
         title: true,
-        resize: false,//true, // Until we can query client area size on Window consistently, see https://github.com/emoon/rust_minifb/issues/42
+        resize: true,
         scale: Scale::X1,
     }).unwrap();
 

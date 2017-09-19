@@ -158,13 +158,13 @@ impl<'a> Painter<'a> {
                 y = 0;
             }
             if x + width > (self.width as i32) {
-                width -= (self.width as i32) - (x + width);
+                width -= (x + width) - (self.width as i32);
             }
             if y + height > (self.height as i32) {
-                height -= (self.height as i32) - (y + height);
+                height -= (y + height) - (self.height as i32);
             }
 
-            if x >= (self.width as i32) || y >= (self.height as i32) || width <= 0 || height <= 0 || x + width < 0 || y + height < 0 {
+            if x >= (self.width as i32) || y >= (self.height as i32) || width <= 0 || height <= 0 || x + width <= 0 || y + height <= 0 {
                 return;
             }
 
@@ -194,10 +194,10 @@ impl<'a> Painter<'a> {
             x = 0;
         }
         if x + width > (self.width as i32) {
-            width -= (self.width as i32) - (x + width);
+            width -= (x + width) - (self.width as i32);
         }
 
-        if x >= (self.width as i32) || width <= 0 || x + width < 0 {
+        if x >= (self.width as i32) || width <= 0 || x + width <= 0 {
             return;
         }
 
@@ -219,10 +219,10 @@ impl<'a> Painter<'a> {
             y = 0;
         }
         if y + height > (self.height as i32) {
-            height -= (self.height as i32) - (y + height);
+            height -= (y + height) - (self.height as i32);
         }
 
-        if y >= (self.height as i32) || height <= 0 || y + height < 0 {
+        if y >= (self.height as i32) || height <= 0 || y + height <= 0 {
             return;
         }
 
