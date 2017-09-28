@@ -75,18 +75,28 @@ fn main() {
                 }
             }
 
-            let mut layout = painter.stack_vertical(8, 8);
+            let mut cursor = (8, 8);
 
-            layout.text(Color::Light, "here's something <(-.-)> :D");
-            layout.text(Color::Lightest, "Holy what, it works!!");
+            painter.text(cursor.0, cursor.1, Color::Light, "here's something <(-.-)> :D");
+            cursor.1 += FONT_CHAR_HEIGHT as i32;
+            painter.text(cursor.0, cursor.1, Color::Lightest, "Holy what, it works!!");
+            cursor.1 += FONT_CHAR_HEIGHT as i32;
+
             for _ in 0..40 {
-                layout.button("here are some buttons that don't do anything...");
+                painter.button(cursor.0, cursor.1, "here are some buttons that don't do anything...");
+                cursor.1 += (FONT_CHAR_HEIGHT as i32) * 2;
             }
-            layout.text(Color::Lightest, "stack stack stack...");
-            if layout.button("PUSH ME YO") {
+
+            painter.text(cursor.0, cursor.1, Color::Lightest, "stack stack stack...");
+            cursor.1 += FONT_CHAR_HEIGHT as i32;
+
+            if painter.button(cursor.0, cursor.1, "PUSH ME YO") {
                 is_done = true;
             }
-            layout.text(Color::Light, "Continue stacking..");
+            cursor.1 += (FONT_CHAR_HEIGHT as i32) * 2;
+
+            painter.text(cursor.0, cursor.1, Color::Light, "Continue stacking..");
+            cursor.1 += FONT_CHAR_HEIGHT as i32;
         }
 
         window.update_with_buffer(&buffer).unwrap();

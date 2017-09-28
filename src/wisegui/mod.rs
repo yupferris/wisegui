@@ -2,8 +2,8 @@ extern crate image;
 
 use self::image::{GenericImage, Pixel};
 
-const FONT_CHAR_WIDTH: usize = 8;
-const FONT_CHAR_HEIGHT: usize = 8;
+pub const FONT_CHAR_WIDTH: usize = 8;
+pub const FONT_CHAR_HEIGHT: usize = 8;
 
 pub struct Font {
     chars: Vec<Vec<u8>>,
@@ -270,31 +270,7 @@ impl<'a> Painter<'a> {
         }
     }
 
-    pub fn stack_vertical(&'a mut self, x: i32, y: i32) -> VerticalStackLayout<'a> {
-        VerticalStackLayout::new(self, x, y)
-    }
-}
-
-pub struct VerticalStackLayout<'a> {
-    painter: &'a mut Painter<'a>,
-    cursor: (i32, i32),
-}
-
-impl<'a> VerticalStackLayout<'a> {
-    fn new(painter: &'a mut Painter<'a>, x: i32, y: i32) -> VerticalStackLayout<'a> {
-        VerticalStackLayout {
-            painter: painter,
-            cursor: (x, y),
-        }
-    }
-
-    pub fn text(&mut self, color: Color, string: &str) {
-        self.painter.text(self.cursor.0, self.cursor.1, color, string);
-        let font_metrics = Font::measure(string);
-        self.cursor.1 += font_metrics.1;
-    }
-
-    pub fn button(&mut self, string: &str) -> bool {
+    pub fn button(&mut self, x: i32, y: i32, string: &str) -> bool {
         let padding = 4;
 
         let font_metrics = Font::measure(string);
@@ -308,22 +284,20 @@ impl<'a> VerticalStackLayout<'a> {
             point.1 < pos.1 + size.1
         }
 
-        let is_mouse_pos_in_bounds = is_in_bounds(self.cursor, total_size, self.painter.context.mouse_pos);
-        let is_left_pressed_pos_in_bounds = is_in_bounds(self.cursor, total_size, self.painter.context.left_mouse_pressed_pos);
-        let is_hovered = is_mouse_pos_in_bounds && !self.painter.context.is_left_mouse_down;
-        let is_down = is_mouse_pos_in_bounds && self.painter.context.is_left_mouse_down && is_left_pressed_pos_in_bounds;
+        let is_mouse_pos_in_bounds = is_in_bounds((x, y), total_size, self.context.mouse_pos);
+        let is_left_pressed_pos_in_bounds = is_in_bounds((x, y), total_size, self.context.left_mouse_pressed_pos);
+        let is_hovered = is_mouse_pos_in_bounds && !self.context.is_left_mouse_down;
+        let is_down = is_mouse_pos_in_bounds && self.context.is_left_mouse_down && is_left_pressed_pos_in_bounds;
         let was_pressed =
-            self.painter.context.was_left_mouse_released &&
+            self.context.was_left_mouse_released &&
             is_left_pressed_pos_in_bounds &&
-            is_in_bounds(self.cursor, total_size, self.painter.context.left_mouse_released_pos);
+            is_in_bounds((x, y), total_size, self.context.left_mouse_released_pos);
 
         let bg_color = if is_down { Color::Light } else { if is_hovered { Color::Dark } else { Color::Darkest } };
         let text_color = if is_down { Color::Darkest } else { Color::Lightest };
 
-        self.painter.rect(self.cursor.0, self.cursor.1, total_size.0, total_size.1, bg_color, Color::Light);
-        self.painter.text(self.cursor.0 + padding, self.cursor.1 + padding, text_color, string);
-
-        self.cursor.1 += total_size.1;
+        self.rect(x, y, total_size.0, total_size.1, bg_color, Color::Light);
+        self.text(x + padding, y + padding, text_color, string);
 
         was_pressed
     }
