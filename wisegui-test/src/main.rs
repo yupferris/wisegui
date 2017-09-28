@@ -1,6 +1,5 @@
 extern crate minifb;
-
-mod wisegui;
+extern crate wisegui;
 
 use minifb::{MouseButton, MouseMode, Scale, Window, WindowOptions};
 
@@ -9,7 +8,7 @@ use wisegui::*;
 use std::time::Duration;
 use std::thread;
 
-/*struct DefaultPalette;
+struct DefaultPalette;
 
 impl Palette for DefaultPalette {
     fn color(&self, color: Color) -> u32 {
@@ -20,9 +19,9 @@ impl Palette for DefaultPalette {
             Color::Lightest => 0xffffff,
         }
     }
-}*/
+}
 
-struct VirtualBoyPalette;
+/*struct VirtualBoyPalette;
 
 impl Palette for VirtualBoyPalette {
     fn color(&self, color: Color) -> u32 {
@@ -33,7 +32,7 @@ impl Palette for VirtualBoyPalette {
             Color::Lightest => 0xff0000,
         }
     }
-}
+}*/
 
 fn main() {
     let mut window = Window::new("wisegui test", 1280, 720, WindowOptions {
@@ -43,7 +42,7 @@ fn main() {
         scale: Scale::X1,
     }).unwrap();
 
-    let mut context = Context::new(Box::new(VirtualBoyPalette));
+    let mut context = Context::new(Box::new(DefaultPalette));
 
     let mut is_done = false;
 
