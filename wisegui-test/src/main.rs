@@ -62,7 +62,7 @@ fn main() {
 
             painter.clear(Color::Dark);
 
-            painter.rect(4, 4, (width - 8) as _, (height - 8) as _, Color::Darkest, Color::Light);
+            painter.rect(4, 4, (width - 8) as _, (height - 8) as _, Some(Color::Darkest), Some(Color::Light));
 
             let pattern_offset = (420, 100);
             let pattern_width = 16;

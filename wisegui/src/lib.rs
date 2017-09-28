@@ -141,8 +141,8 @@ impl<'a> Painter<'a> {
         }
     }
 
-    pub fn rect(&mut self, x: i32, y: i32, width: i32, height: i32, fill: Color, stroke: Color) {
-        {
+    pub fn rect(&mut self, x: i32, y: i32, width: i32, height: i32, fill: Option<Color>, stroke: Option<Color>) {
+        if let Some(fill) = fill {
             let mut x = x;
             let mut y = y;
             let mut width = width;
@@ -178,10 +178,12 @@ impl<'a> Painter<'a> {
             }
         }
 
-        self.horizontal_line(x, width, y, stroke);
-        self.horizontal_line(x, width, y + height - 1, stroke);
-        self.vertical_line(y, height, x, stroke);
-        self.vertical_line(y, height, x + width - 1, stroke);
+        if let Some(stroke) = stroke {
+            self.horizontal_line(x - 1, width + 2, y - 1, stroke);
+            self.horizontal_line(x - 1, width + 2, y + height, stroke);
+            self.vertical_line(y - 1, height + 2, x - 1, stroke);
+            self.vertical_line(y - 1, height + 2, x + width, stroke);
+        }
     }
 
     pub fn horizontal_line(&mut self, mut x: i32, mut width: i32, y: i32, stroke: Color) {
@@ -296,7 +298,7 @@ impl<'a> Painter<'a> {
         let bg_color = if is_down { Color::Light } else { if is_hovered { Color::Dark } else { Color::Darkest } };
         let text_color = if is_down { Color::Darkest } else { Color::Lightest };
 
-        self.rect(x, y, total_size.0, total_size.1, bg_color, Color::Light);
+        self.rect(x, y, total_size.0, total_size.1, Some(bg_color), Some(Color::Light));
         self.text(x + padding, y + padding, text_color, string);
 
         was_pressed
