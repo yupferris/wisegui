@@ -5,8 +5,9 @@ use minifb::{MouseButton, MouseMode, Scale, Window, WindowOptions};
 
 use wisegui::*;
 
-use std::time::Duration;
-use std::thread;
+
+//use std::time::Duration;
+//use std::thread;
 
 struct DefaultPalette;
 
@@ -65,8 +66,8 @@ fn main() {
             painter.rect(4, 4, (width - 8) as _, (height - 8) as _, Some(Color::Darkest), Some(Color::Light));
 
             let pattern_offset = (420, 100);
-            let pattern_width = 16;
-            let pattern_height = 16;
+            let pattern_width = 10;
+            let pattern_height = 10;
             for y in 0..pattern_height {
                 for x in 0..pattern_width {
                     let value = (y << 4) | x;
@@ -96,10 +97,12 @@ fn main() {
 
             painter.text(cursor.0, cursor.1, Color::Light, "Continue stacking..");
             cursor.1 += FONT_CHAR_HEIGHT as i32;
+
+            painter.line((1000,700), mouse_pos, Color::Light);            
         }
 
         window.update_with_buffer(&buffer).unwrap();
 
-        thread::sleep(Duration::from_millis(1));
+        //thread::sleep(Duration::from_millis(1));
     }
 }

@@ -1,3 +1,4 @@
 target/
 **/*.rs.bk
 wisegui/Cargo.lock
+*.json
